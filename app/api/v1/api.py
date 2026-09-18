@@ -11,7 +11,8 @@ from app.api.v1.endpoints import (
     frais_scolaires, paiements, recus, depenses,
     cartes_scolaires,
     communication,
-    parametres
+    parametres,
+    dashboard
 )
 
 api_router = APIRouter()
@@ -42,3 +43,4 @@ api_router.include_router(depenses.router, prefix="/depenses", tags=["Dépenses"
 api_router.include_router(cartes_scolaires.router, prefix="/cartes-scolaires", tags=["Cartes scolaires"])
 api_router.include_router(communication.router, prefix="/communication", tags=["Communication"])
 api_router.include_router(parametres.router, prefix="/parametres", tags=["Paramètres"])
+api_router.include_router(dashboard.router, prefix="/dashboard", tags=["Dashboard"])
