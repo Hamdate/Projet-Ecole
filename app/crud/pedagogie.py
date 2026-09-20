@@ -175,3 +175,33 @@ def update_bulletin(db: Session, id_bulletin: int, data: BulletinUpdate):
     db.commit()
     db.refresh(db_obj)
     return db_obj
+
+
+def generer_pdf_bulletin(db: Session, id_bulletin: int):
+    from datetime import datetime
+    from app.services.pdf_service import generer_pdf_bulletin as creer_pdf
+    from app.models.eleves import Eleve, Inscription
+    from app.models.scolarite import Periode
+
+    bulletin = get_bulletin(db, id_bulletin)
+    if not bulletin:
+        return None
+
+    inscription = db.query(Inscription).filter(Inscription.id_inscription == bulletin.id_inscription).first()
+    eleve = db.query(Eleve).filter(Eleve.id_eleve == inscription.id_eleve).first()
+    periode = db.query(Periode).filter(Periode.id_periode == bulletin.id_periode).first()
+
+    chemin = creer_pdf(
+        nom_eleve=eleve.nom,
+        prenom_eleve=eleve.prenom,
+        periode_libelle=periode.libelle,
+        moyenne_generale=bulletin.moyenne_generale or 0,
+        rang=bulletin.rang or 0,
+        appreciation=bulletin.appreciation or ""
+    )
+
+    bulletin.pdf = chemin
+    bulletin.date_generation = datetime.utcnow()
+    db.commit()
+    db.refresh(bulletin)
+    return bulletin

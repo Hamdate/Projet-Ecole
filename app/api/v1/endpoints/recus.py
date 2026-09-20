@@ -21,3 +21,11 @@ def marquer_imprime(id_recu: int, id_imprimeur: int, db: Session = Depends(get_d
     if not obj:
         raise HTTPException(status_code=404, detail="Reçu introuvable")
     return obj
+
+
+@router.put("/{id_recu}/generer-pdf", response_model=RecuRead)
+def generer_pdf(id_recu: int, db: Session = Depends(get_db)):
+    obj = crud.generer_pdf_recu(db, id_recu)
+    if not obj:
+        raise HTTPException(status_code=404, detail="Reçu introuvable")
+    return obj

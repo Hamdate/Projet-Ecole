@@ -136,3 +136,28 @@ class ParametreRead(ParametreBase):
 
     class Config:
         from_attributes = True
+
+
+# ---------- JOURNAL_ACTIVITE ----------
+class JournalActiviteBase(BaseModel):
+    id_etablissement: int
+    id_utilisateur: Optional[int] = None
+    action: str
+    module: Optional[str] = None
+    table_cible: Optional[str] = None
+    id_cible: Optional[int] = None
+    ancienne_valeur: Optional[str] = None
+    nouvelle_valeur: Optional[str] = None
+    adresse_ip: Optional[str] = None
+
+
+class JournalActiviteCreate(JournalActiviteBase):
+    pass
+
+
+class JournalActiviteRead(JournalActiviteBase):
+    id_journal: int
+    date_action: datetime
+
+    class Config:
+        from_attributes = True

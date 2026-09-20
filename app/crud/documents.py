@@ -1,3 +1,4 @@
+import os
 import uuid
 from datetime import datetime
 from sqlalchemy.orm import Session
@@ -40,3 +41,21 @@ def reimprimer_carte(db: Session, id_carte: int):
     db.commit()
     db.refresh(db_obj)
     return db_obj
+
+
+def generer_qr_image(db: Session, id_carte: int):
+    from app.utils.qr_generator import generer_image_qr
+
+    carte = get_carte(db, id_carte)
+    if not carte:
+        return None
+
+    dossier = os.path.join("storage", "cartes")
+    os.makedirs(dossier, exist_ok=True)
+    chemin = os.path.join(dossier, f"{carte.numero_carte}.png")
+
+    generer_image_qr(carte.qr_token, chemin)
+    carte.fichier = chemin
+    db.commit()
+    db.refresh(carte)
+    return carte

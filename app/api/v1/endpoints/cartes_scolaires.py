@@ -31,3 +31,11 @@ def reimprimer_carte(id_carte: int, db: Session = Depends(get_db)):
     if not obj:
         raise HTTPException(status_code=404, detail="Carte introuvable")
     return obj
+
+
+@router.put("/{id_carte}/generer-qr", response_model=CarteScolaireRead)
+def generer_qr(id_carte: int, db: Session = Depends(get_db)):
+    obj = crud.generer_qr_image(db, id_carte)
+    if not obj:
+        raise HTTPException(status_code=404, detail="Carte introuvable")
+    return obj

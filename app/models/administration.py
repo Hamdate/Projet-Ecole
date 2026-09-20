@@ -90,3 +90,19 @@ class Parametre(Base):
     __table_args__ = (
         UniqueConstraint("id_etablissement", "cle", name="uq_etab_cle_parametre"),
     )
+
+
+class JournalActivite(Base):
+    __tablename__ = "journal_activite"
+
+    id_journal = Column(Integer, primary_key=True, index=True)
+    id_etablissement = Column(Integer, ForeignKey("etablissement.id_etablissement"), nullable=False)
+    id_utilisateur = Column(Integer, ForeignKey("utilisateur.id_utilisateur"), nullable=True)
+    action = Column(String, nullable=False)
+    module = Column(String, nullable=True)
+    table_cible = Column(String, nullable=True)
+    id_cible = Column(Integer, nullable=True)
+    ancienne_valeur = Column(String, nullable=True)
+    nouvelle_valeur = Column(String, nullable=True)
+    adresse_ip = Column(String, nullable=True)
+    date_action = Column(DateTime, default=datetime.utcnow)

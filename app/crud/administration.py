@@ -1,10 +1,11 @@
 from sqlalchemy.orm import Session
-from app.models.administration import Etablissement, Role, Permission, Utilisateur, Parametre
+from app.models.administration import Etablissement, Role, Permission, Utilisateur, Parametre, JournalActivite
 from app.schemas.administration import (
     EtablissementCreate, EtablissementUpdate,
     RoleCreate, PermissionCreate,
     UtilisateurCreate, UtilisateurUpdate,
-    ParametreCreate, ParametreUpdate
+    ParametreCreate, ParametreUpdate,
+    JournalActiviteCreate
 )
 from app.core.security import hash_password
 
@@ -134,6 +135,21 @@ def update_parametre(db: Session, id_parametre: int, data: ParametreUpdate):
         return None
     for key, value in data.model_dump(exclude_unset=True).items():
         setattr(db_obj, key, value)
+    db.commit()
+    db.refresh(db_obj)
+    return db_obj
+
+
+# ---------- JOURNAL_ACTIVITE ----------
+def get_journal(db: Session, id_etablissement: int, limit: int = 20):
+    return db.query(JournalActivite).filter(
+        JournalActivite.id_etablissement == id_etablissement
+    ).order_by(JournalActivite.date_action.desc()).limit(limit).all()
+
+
+def create_journal_entry(db: Session, data: JournalActiviteCreate):
+    db_obj = JournalActivite(**data.model_dump())
+    db.add(db_obj)
     db.commit()
     db.refresh(db_obj)
     return db_obj

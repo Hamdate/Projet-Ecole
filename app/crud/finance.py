@@ -102,6 +102,24 @@ def marquer_recu_imprime(db: Session, id_recu: int, id_imprimeur: int):
     return recu
 
 
+def generer_pdf_recu(db: Session, id_recu: int):
+    from app.services.pdf_service import generer_pdf_recu as creer_pdf
+
+    recu = get_recu(db, id_recu)
+    if not recu:
+        return None
+
+    chemin = creer_pdf(
+        numero_recu=recu.numero_recu,
+        montant=recu.montant,
+        date_emission=recu.date_emission
+    )
+    recu.pdf = chemin
+    db.commit()
+    db.refresh(recu)
+    return recu
+
+
 # ---------- DEPENSE ----------
 def get_depenses(db: Session, id_etablissement: int = None, skip: int = 0, limit: int = 100):
     query = db.query(Depense)

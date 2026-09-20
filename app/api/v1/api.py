@@ -1,5 +1,6 @@
 from fastapi import APIRouter
 from app.api.v1.endpoints import (
+    auth,
     etablissements, roles, utilisateurs,
     annees_scolaires, periodes, classes, matieres,
     eleves, parents, inscriptions,
@@ -12,11 +13,13 @@ from app.api.v1.endpoints import (
     cartes_scolaires,
     communication,
     parametres,
-    dashboard
+    dashboard,
+    journal
 )
 
 api_router = APIRouter()
 
+api_router.include_router(auth.router, prefix="/auth", tags=["Authentification"])
 api_router.include_router(etablissements.router, prefix="/etablissements", tags=["Établissements"])
 api_router.include_router(roles.router, prefix="/roles", tags=["Rôles"])
 api_router.include_router(utilisateurs.router, prefix="/utilisateurs", tags=["Utilisateurs"])
@@ -44,3 +47,4 @@ api_router.include_router(cartes_scolaires.router, prefix="/cartes-scolaires", t
 api_router.include_router(communication.router, prefix="/communication", tags=["Communication"])
 api_router.include_router(parametres.router, prefix="/parametres", tags=["Paramètres"])
 api_router.include_router(dashboard.router, prefix="/dashboard", tags=["Dashboard"])
+api_router.include_router(journal.router, prefix="/journal", tags=["Journal d'activité"])

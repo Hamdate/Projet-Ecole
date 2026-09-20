@@ -31,3 +31,11 @@ def update_bulletin(id_bulletin: int, data: BulletinUpdate, db: Session = Depend
     if not obj:
         raise HTTPException(status_code=404, detail="Bulletin introuvable")
     return obj
+
+
+@router.put("/{id_bulletin}/generer-pdf", response_model=BulletinRead)
+def generer_pdf(id_bulletin: int, db: Session = Depends(get_db)):
+    obj = crud.generer_pdf_bulletin(db, id_bulletin)
+    if not obj:
+        raise HTTPException(status_code=404, detail="Bulletin introuvable")
+    return obj
