@@ -1,4 +1,5 @@
 from sqlalchemy.orm import Session
+from fastapi import HTTPException
 from app.models.enseignants import Enseignant, EnseignantMatiere, EnseignantClasse
 from app.schemas.enseignants import (
     EnseignantCreate, EnseignantUpdate,
@@ -50,6 +51,16 @@ def get_matieres_of_enseignant(db: Session, id_enseignant: int):
 
 
 def link_enseignant_matiere(db: Session, data: EnseignantMatiereCreate):
+    existing = db.query(EnseignantMatiere).filter(
+        EnseignantMatiere.id_enseignant == data.id_enseignant,
+        EnseignantMatiere.id_matiere == data.id_matiere
+    ).first()
+    if existing:
+        raise HTTPException(
+            status_code=400,
+            detail="Cet enseignant est déjà associé à cette matière"
+        )
+
     db_obj = EnseignantMatiere(**data.model_dump())
     db.add(db_obj)
     db.commit()
@@ -66,6 +77,17 @@ def get_classes_of_enseignant(db: Session, id_enseignant: int, id_annee: int = N
 
 
 def link_enseignant_classe(db: Session, data: EnseignantClasseCreate):
+    existing = db.query(EnseignantClasse).filter(
+        EnseignantClasse.id_enseignant == data.id_enseignant,
+        EnseignantClasse.id_classe == data.id_classe,
+        EnseignantClasse.id_annee == data.id_annee
+    ).first()
+    if existing:
+        raise HTTPException(
+            status_code=400,
+            detail="Cet enseignant est déjà associé à cette classe pour cette année"
+        )
+
     db_obj = EnseignantClasse(**data.model_dump())
     db.add(db_obj)
     db.commit()
