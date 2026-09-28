@@ -8,7 +8,7 @@ from app.api.v1.endpoints import (
     enseignants,
     evaluations, notes, presences_eleves, bulletins,
     emploi_temps,
-    presences_enseignants, cours_effectues,
+    presences_enseignants, cours_effectues, observations_enseignants,
     honoraires,
     frais_scolaires, paiements, recus, depenses,
     cartes_scolaires,
@@ -44,6 +44,7 @@ api_router.include_router(bulletins.router, prefix="/bulletins", tags=["Bulletin
 api_router.include_router(emploi_temps.router, prefix="/emploi-temps", tags=["Emploi du temps"], dependencies=protected)
 api_router.include_router(presences_enseignants.router, prefix="/presences-enseignants", tags=["Présences enseignants"], dependencies=protected)
 api_router.include_router(cours_effectues.router, prefix="/cours-effectues", tags=["Cours effectués"], dependencies=protected)
+api_router.include_router(observations_enseignants.router, prefix="/observations-enseignants", tags=["Observations enseignants"], dependencies=protected)
 api_router.include_router(honoraires.router, prefix="/honoraires", tags=["Honoraires"], dependencies=protected)
 api_router.include_router(frais_scolaires.router, prefix="/frais-scolaires", tags=["Frais scolaires"], dependencies=protected)
 api_router.include_router(paiements.router, prefix="/paiements", tags=["Paiements"], dependencies=protected)
