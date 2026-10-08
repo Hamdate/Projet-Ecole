@@ -1,8 +1,10 @@
 from sqlalchemy.orm import Session
-from app.models.administration import Etablissement, Role, Permission, Utilisateur, Parametre, JournalActivite
+from fastapi import HTTPException
+from app.models.administration import Etablissement, Role, Permission, RolePermission, Utilisateur, Parametre, JournalActivite
 from app.schemas.administration import (
     EtablissementCreate, EtablissementUpdate,
-    RoleCreate, PermissionCreate,
+    RoleCreate, RoleUpdate,
+    PermissionCreate, PermissionUpdate,
     UtilisateurCreate, UtilisateurUpdate,
     ParametreCreate, ParametreUpdate,
     JournalActiviteCreate
@@ -54,6 +56,10 @@ def get_roles(db: Session, skip: int = 0, limit: int = 100):
     return db.query(Role).offset(skip).limit(limit).all()
 
 
+def get_role(db: Session, id_role: int):
+    return db.query(Role).filter(Role.id_role == id_role).first()
+
+
 def create_role(db: Session, data: RoleCreate):
     db_obj = Role(**data.model_dump())
     db.add(db_obj)
@@ -62,9 +68,33 @@ def create_role(db: Session, data: RoleCreate):
     return db_obj
 
 
+def update_role(db: Session, id_role: int, data: RoleUpdate):
+    db_obj = get_role(db, id_role)
+    if not db_obj:
+        return None
+    for key, value in data.model_dump(exclude_unset=True).items():
+        setattr(db_obj, key, value)
+    db.commit()
+    db.refresh(db_obj)
+    return db_obj
+
+
+def delete_role(db: Session, id_role: int):
+    db_obj = get_role(db, id_role)
+    if not db_obj:
+        return None
+    db.delete(db_obj)
+    db.commit()
+    return db_obj
+
+
 # ---------- PERMISSION ----------
 def get_permissions(db: Session, skip: int = 0, limit: int = 100):
     return db.query(Permission).offset(skip).limit(limit).all()
+
+
+def get_permission(db: Session, id_permission: int):
+    return db.query(Permission).filter(Permission.id_permission == id_permission).first()
 
 
 def create_permission(db: Session, data: PermissionCreate):
@@ -72,6 +102,62 @@ def create_permission(db: Session, data: PermissionCreate):
     db.add(db_obj)
     db.commit()
     db.refresh(db_obj)
+    return db_obj
+
+
+def update_permission(db: Session, id_permission: int, data: PermissionUpdate):
+    db_obj = get_permission(db, id_permission)
+    if not db_obj:
+        return None
+    for key, value in data.model_dump(exclude_unset=True).items():
+        setattr(db_obj, key, value)
+    db.commit()
+    db.refresh(db_obj)
+    return db_obj
+
+
+def delete_permission(db: Session, id_permission: int):
+    db_obj = get_permission(db, id_permission)
+    if not db_obj:
+        return None
+    db.delete(db_obj)
+    db.commit()
+    return db_obj
+
+
+# ---------- ROLE_PERMISSION ----------
+def get_permissions_of_role(db: Session, id_role: int):
+    return (
+        db.query(Permission)
+        .join(RolePermission, Permission.id_permission == RolePermission.id_permission)
+        .filter(RolePermission.id_role == id_role)
+        .all()
+    )
+
+
+def assign_permission_to_role(db: Session, id_role: int, id_permission: int):
+    existing = db.query(RolePermission).filter(
+        RolePermission.id_role == id_role,
+        RolePermission.id_permission == id_permission
+    ).first()
+    if existing:
+        raise HTTPException(status_code=400, detail="Cette permission est déjà associée à ce rôle")
+
+    db_obj = RolePermission(id_role=id_role, id_permission=id_permission)
+    db.add(db_obj)
+    db.commit()
+    return db_obj
+
+
+def remove_permission_from_role(db: Session, id_role: int, id_permission: int):
+    db_obj = db.query(RolePermission).filter(
+        RolePermission.id_role == id_role,
+        RolePermission.id_permission == id_permission
+    ).first()
+    if not db_obj:
+        return None
+    db.delete(db_obj)
+    db.commit()
     return db_obj
 
 
